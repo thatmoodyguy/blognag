@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090909034052) do
+ActiveRecord::Schema.define(:version => 20090911174345) do
 
   create_table "current_messages", :force => true do |t|
     t.integer  "last_message_id"
@@ -33,12 +33,13 @@ ActiveRecord::Schema.define(:version => 20090909034052) do
   create_table "feeds", :force => true do |t|
     t.integer  "twitter_user_id"
     t.string   "feed_url"
-    t.string   "supplied_url"
     t.datetime "last_checked_at"
     t.datetime "last_posted_at"
     t.integer  "max_days_before_nagging"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "blog_url"
+    t.string   "title"
   end
 
   create_table "twitter_users", :force => true do |t|

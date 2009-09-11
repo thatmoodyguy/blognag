@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe Feed do
   before(:each) do
     @valid_attributes = {
-      :feed_url => 'http://foo.com/rss.xml', :supplied_url => 'foo.com', :max_days_before_nagging => 7
+      :feed_url => 'http://foo.com/rss.xml', :blog_url => 'foo.com', :max_days_before_nagging => 7
     }
   end
 

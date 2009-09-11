@@ -8,9 +8,9 @@ namespace :blognag do
     end
     unless tweets.empty?
       tweets.each do |tweet|
-        MessageProcessor.process_incoming_message(tweet.text, from_user)
+        MessageProcessor.send_later(:process_incoming_message, tweet)
       end
-      CurrentMessage.update_last_id(tweets.first.id)
+      CurrentMessage.update_last_id(tweets.max_id)
     end
   end
 
