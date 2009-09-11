@@ -8,7 +8,8 @@ namespace :blognag do
     end
     unless tweets.empty?
       tweets.each do |tweet|
-        MessageProcessor.send_later(:process_incoming_message, tweet)
+        tweet_object = Tweet.new(:text => tweet.text, :from_user => tweet.from_user)
+        MessageProcessor.send_later(:process_incoming_message, tweet_object)
       end
       CurrentMessage.update_last_id(tweets.max_id)
     end
