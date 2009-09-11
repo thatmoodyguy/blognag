@@ -18,10 +18,16 @@ set :deploy_via, :remote_cache
 set :deploy_to, "/home/john/public_html/#{application}"
 set :scm_passphrase, "maleldil"
 set :git_enable_submodules, 1
+set :rails_env,     'production'
 
 role :app, "blognag.mentalvelocity.com"
 role :web, "blognag.mentalvelocity.com"
 role :db,  "blognag.mentalvelocity.com", :primary => true
+
+before "deploy", "delayed_job:stop" 
+after "deploy", "delayed_job:start"
+before "deploy:migrations", "delayed_job:stop" 
+after "deploy:migrations", "delayed_job:start"
 
 namespace :deploy do
   
@@ -36,4 +42,21 @@ namespace :deploy do
   end
   
 end
+
+namespace :delayed_job do
+
+
+  desc "Start delayed_job process" 
+  task :start, :roles => :app do
+    run "cd #{current_path} && sudo ruby script/delayed_job start #{rails_env}" 
+  end
+
+  desc "Stop delayed_job process" 
+  task :stop, :roles => :app do
+    run "cd #{current_path} && sudo ruby script/delayed_job stop #{rails_env}" 
+    #run "sudo killall -q ruby"
+  end
+
+end
+
 

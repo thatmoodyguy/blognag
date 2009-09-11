@@ -1,7 +1,7 @@
 class MessageProcessor
   
   def self.process_incoming_message(tweet)
-    process(tweet.text, tweet.from_user)
+    process_message(tweet.text, tweet.from_user)
   end
   
   def self.queue_outgoing_message(user, message)
@@ -19,7 +19,7 @@ protected
     client.update(message)
   end
 
-  def self.process(message, sender_username)
+  def self.process_message(message, sender_username)
     #determine the kind of message this is!
     RAILS_DEFAULT_LOGGER.info "Processing message from #{sender_username}: #{message}"
     user = TwitterUser.find_by_username(sender_username) rescue nil
