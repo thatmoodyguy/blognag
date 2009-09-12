@@ -48,7 +48,7 @@ namespace :delayed_job do
 
   desc "Start delayed_job process" 
   task :start, :roles => :app do
-    run "cd #{current_path} && sudo ruby script/delayed_job start #{rails_env}" 
+    run "cd #{current_path} && ruby script/delayed_job start #{rails_env}" 
   end
 
   desc "Stop delayed_job process" 
