@@ -6,7 +6,12 @@ class CurrentMessage < ActiveRecord::Base
   end
   
   def self.update_last_id(new_id)
-    get_or_create_current_message.update_attribute(:last_message_id, new_id)
+    msg = CurrentMessage.find :first
+    if msg.nil?
+      CurrentMessage.create :last_message_id, new_id
+    else
+      msg.update_attribute :last_message_id, new_id
+    end
   end
   
 protected
