@@ -9,12 +9,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090911174345) do
+ActiveRecord::Schema.define(:version => 20090922232415) do
 
   create_table "current_messages", :force => true do |t|
-    t.integer  "last_message_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "last_message_id", :limit => 8
   end
 
   create_table "delayed_jobs", :force => true do |t|

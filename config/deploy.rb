@@ -25,8 +25,10 @@ role :app, "blognag.mentalvelocity.com"
 role :web, "blognag.mentalvelocity.com"
 role :db,  "blognag.mentalvelocity.com", :primary => true
 
-#before "deploy", "delayed_job:stop" 
-#after "deploy", "delayed_job:start"
+before "deploy", "delayed_job:stop" 
+after "deploy", "delayed_job:start"
+before "deploy", "tweet_sweeper:stop"
+after "deploy", "tweet_sweeper:start"
 
 namespace :deploy do
   
@@ -66,7 +68,7 @@ namespace :tweet_sweeper do
 
   desc "Stop tweet_sweeper process" 
   task :stop, :roles => :app do
-    run "cd #{current_path} && sudo ruby script/tweet_sweeper stop #{rails_env}" 
+    run "cd #{current_path} && ruby script/tweet_sweeper stop #{rails_env}" 
   end
 
 end
