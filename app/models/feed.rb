@@ -6,6 +6,33 @@ class Feed < ActiveRecord::Base
   belongs_to :twitter_user
   validates_presence_of :feed_url, :blog_url, :max_days_before_nagging
   
+  def self.schedule_update_checks
+    Feed.all.each do |feed|
+      Feed.send_later :check_feed_for_updates, feed.id
+    end
+  end
+  
+  def self.check_feed_for_updates(feed_id)
+    feed = Feed.find(feed_id) rescue nil
+    feed.check_for_updates unless feed.nil?
+  end
+  
+  def check_for_updates
+    return if last_checked_at && last_checked_at.beginning_of_day >= Time.zone.now.beginning_of_day
+    last_date = latest_post_date_from_feed
+    unless last_date.nil?
+      update_attributes :last_posted_at => last_date, :last_checked_at => Time.zone.now
+      if post_days_ago > max_days_before_nagging
+        send_nag_message(post_days_ago)
+      end
+    end
+  end
+  
+  def post_days_ago
+    return 0 if last_checked_at.nil?
+    ((Time.zone.now.beginning_of_day - last_posted_at.beginning_of_day)/60/60/24).to_i
+  end
+  
   def self.is_valid_url?(msg)
     prepend_http_if_missing(msg) =~ REGEXP
   end
@@ -21,14 +48,12 @@ class Feed < ActiveRecord::Base
     unless feed.nil?
       user.feeds.create(:feed_url => feed.feed_url, :blog_url => feed.url, :title => feed.title, :max_days_before_nagging => number_of_days)
       MessageProcessor.queue_outgoing_message user, "Your blog has been added. We'll send you a quasi-friendly reminder when you haven't posted to it in #{number_of_days} days."
-      #send success message
     else
       feed_url = extract_feed_url_from_html(url)
       feed = get_feed_object(feed_url)
       unless feed.nil?
         user.feeds.create(:feed_url => feed.feed_url, :blog_url => feed.url, :title => feed.title, :max_days_before_nagging => number_of_days)
         MessageProcessor.queue_outgoing_message user, "Your blog has been added. We'll send you a quasi-friendly reminder when you haven't posted to it in #{number_of_days} days."
-        #send success message
       else
         #feed isn't good - complain!
       end
@@ -50,7 +75,23 @@ class Feed < ActiveRecord::Base
   
 protected
 
+  
+  def send_nag_message(days_ago)
+    message = "A friendly reminder from @blognag: You haven't posted to your blog in #{pluralize(days_ago, "day")}. Write something!"
+    MessageProcessor.queue_outgoing_message(twitter_user.username, message)
+  end
+
+  def latest_post_date_from_feed
+    feed = Feed.get_feed_object(feed_url) rescue nil
+    if feed.nil?
+      nil
+    else
+      feed.entries.first.published rescue nil
+    end
+  end
+
   def self.extract_feed_url_from_html(url)
+    url = prepend_http_if_missing(url)
     doc = Nokogiri::HTML(open(url))
     return nil if doc.nil?
     doc.search('head link[type="application/rss+xml"]').first.attributes["href"].to_s rescue nil
@@ -95,5 +136,13 @@ REGEXP = %r{
   ([/?]\S*)? # optional /whatever or ?whatever
   \Z
   }iux
+  
+  def pluralize(count, singular, plural = nil)
+    Feed.pluralize(count, singular, plural)
+  end
+  
+  def self.pluralize(count, singular, plural = nil)
+    "#{count || 0} " + ((count == 1 || count == '1') ? singular : (plural || singular.pluralize))
+  end
 
 end

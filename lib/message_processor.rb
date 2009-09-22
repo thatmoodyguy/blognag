@@ -1,7 +1,24 @@
 class MessageProcessor
   
+  def self.sweep_for_incoming_tweets
+    begin
+      last_id = CurrentMessage.get_last_id
+      max_id = last_id
+      RAILS_DEFAULT_LOGGER.info "Starting twitter sweep at #{Time.now.to_s} - last ID: #{last_id}"
+      Twitter::Search.new.to('blognag').since(max_id).each do |tweet|
+        max_id = tweet.id if tweet.id > max_id
+        RAILS_DEFAULT_LOGGER.info "Tweet received from @#{tweet.from_user}: #{tweet.text}"
+        MessageProcessor.send_later(:process_incoming_message, {:text => tweet.text, :from_user => tweet.from_user, :id => tweet.id})
+      end
+      CurrentMessage.update_last_id(max_id)
+    rescue => exc
+      RAILS_DEFAULT_LOGGER.error "Error in MessageProcessor.sweep_for_incoming_tweets: #{exc}"
+    end
+  end
+  
+  
   def self.process_incoming_message(tweet)
-    process_message(tweet.text, tweet.from_user)
+    process_message(tweet[:text], tweet[:from_user])
   end
   
   def self.queue_outgoing_message(user, message)
@@ -42,7 +59,8 @@ protected
         user = TwitterUser.create(:username => sender_username) if user.nil?
         Feed.create_for_url(msgs.first, user, num_days)
       else
-        send_bad_message_response(sender_username)
+        # don't send anything - treat it as a normal tweet!
+        #send_bad_message_response(sender_username)
       end
     end
   end
@@ -71,8 +89,11 @@ protected
     user = TwitterUser.find_by_username(username) rescue nil
     if user.nil? || user.feeds.size == 0
       queue_outgoing_message username, "You aren't tracking any blogs yet. To be reminded to post to a blog, tweet '@blognag http://myblog.com'."       
+    elsif user.feeds.size == 1
+      feed = user.feeds.first
+      queue_outgoing_message username, "Tracking 1 blog: #{feed.blog_url} - after #{pluralize(feed.max_days_before_nagging, "day")}"
     else
-      queue_outgoing_message username, "You are tracking #{pluralize(user.feeds.size, "blog")}."
+      queue_outgoing_message username, "Tracking #{pluralize(user.feeds.size, "blog")}."
       user.feeds.each do |feed| 
         queue_outgoing_message username, "#{feed.blog_url} - after #{pluralize(feed.max_days_before_nagging, "day")}"               
       end

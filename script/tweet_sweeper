@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+require 'rubygems'
+require 'daemon-spawn'
+ 
+RAILS_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+ 
+class TweetSweeperWorker < DaemonSpawn::Base
+  def start(args)
+    ENV['RAILS_ENV'] ||= args.first || 'development'
+    Dir.chdir RAILS_ROOT
+    require File.join('config', 'environment')
+ 
+    loop do
+      #Add actual code the sweeper should run here!
+      MessageProcessor.sweep_for_incoming_tweets
+      sleep 30
+    end
+  end
+ 
+  def stop
+    system("kill `cat #{RAILS_ROOT}/tmp/pids/tweet_sweeper.pid`")
+  end
+end
+ 
+TweetSweeperWorker.spawn!(:log_file => File.join(RAILS_ROOT, "log", "tweet_sweeper.log"),
+                          :pid_file => File.join(RAILS_ROOT, 'tmp', 'pids', 'tweet_sweeper.pid'),
+                          :sync_log => true,
+                          :working_dir => RAILS_ROOT)

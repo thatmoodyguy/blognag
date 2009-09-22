@@ -4,19 +4,71 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>BlogNag: Use Twitter to keep your blog fresh!</title>
+    <style>
+      body {
+        background-color: #fff;
+        text-align: center;
+        font-family: 'Helvetica', 'Arial';
+        font-size: 14px;
+        line-height: 21px;
+      }
+      
+      h1 { display: none; }
+      
+      h2 { 
+        font-family: 'Arial Rounded MT Bold', 'Verdana';
+        font-size: 170%;
+        color: #8f0000;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      h3 { 
+        font-family: 'Arial Rounded MT Bold', 'Verdana';
+        font-size: 130%;
+        color: #8f0000;
+        font-style: italic;
+        text-align: center;
+      }
+      
+      #container {
+        width: 800px;
+        text-align: left;
+        margin: 0 auto;
+        padding: 0;
+      }
+      
+      #header {
+        width: 800px;
+        text-align: center;
+        padding-bottom: 20px;
+      }
+      
+      hr { color: #8f0000;}
+      
+      div.tweets p b { color: #8f0000;}
+      
+      
+      
+    </style>
   </head>
   <body>
-    <h1>BlogNag (beta)</h1>
-    <h3>Use Twitter to keep your blog fresh!</h3>
-    <p>By watching your blog on a daily basis, BlogNag knows when you haven't posted in a while, and send you a tweet to remind you to get your butt in gear!</p>
-    <p>There's no signup, no charge, and no hassle. BlogNag is entirely controlled through your favorite Twitter client!</p>
+    <div id="container">
+      <div id="header">
+        <h1>BlogNag (beta)</h1>
+        <img src="/images/blognag-logo-400.jpg" width="400" height="400" border="0"/>
+      </div>
+    <h2>Use Twitter to keep your blog fresh!</h2>
+    
+    <p>By watching your blog on a daily basis, BlogNag knows when you haven't posted in a while, and will send you a tweet each morning to remind you to get your butt in gear!</p>
+    <p><b>There's no signup, no charge, and no hassle.</b> BlogNag is entirely controlled through your favorite Twitter client!</p>
     <br/>
+    <hr/>
+    <div class="tweets">
     <p>Tweet: <b>@blognag lifeasacoder.com</b><br/>
       <em>Adds the blog at <a href="http://lifeasacoder.com">lifeasacoder.com</a> to your nag list. You'll get reminded if you go without posting for 7 days.</em></p>
     <p>Tweet: <b>@blognag lifeasacoder.com 3</b><br/>
       <em>Adds the blog at <a href="http://lifeasacoder.com">lifeasacoder.com</a> to your nag list. You'll get reminded if you go without posting for 3 days.</em></p>
-    <p>Tweet: <b>@blognag lifeasacoder.com 3</b><br/>
-      <em>Adds the blog at <a href="http://lifeasacoder.com">lifeasacoder.com</a> to your nag list. You'll get reminded if you go without posting for 3 days.</em></p>   
       <p>Tweet: <b>@blognag remove lifeasacoder.com</b><br/>
         <em>Removes the blog at <a href="http://lifeasacoder.com">lifeasacoder.com</a> from your nag list.</em></p>   
         <p>Tweet: <b>@blognag remove all</b><br/>
@@ -25,8 +77,9 @@
             <em>Sends you a list of all of the blogs on your nag list.</em></p>
             <p>Tweet: <b>@blognag help</b><br/>
               <em>Sends you a link to this page!</em></p>
-              
-    <br/><br/>
-    <p>BlogNag is proudly brought to you at no charge (and at your own risk!) by the good folks at <a href="http://mentalvelocity.com">MentalVelocity</a>.</p>
+    </div>
+    <hr/>
+    <br/>
+    <h3>BlogNag is proudly brought to you at no charge (and at your own risk!)<br/> by the good folks at <a href="http://mentalvelocity.com">MentalVelocity</a>.</h3>
   </body>
 </html>
