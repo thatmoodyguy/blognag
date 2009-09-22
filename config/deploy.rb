@@ -20,14 +20,13 @@ set :scm_passphrase, "maleldil"
 set :git_enable_submodules, 1
 set :rails_env,     'production'
 
+
 role :app, "blognag.mentalvelocity.com"
 role :web, "blognag.mentalvelocity.com"
 role :db,  "blognag.mentalvelocity.com", :primary => true
 
-before "deploy", "delayed_job:stop" 
-after "deploy", "delayed_job:start"
-before "deploy:migrations", "delayed_job:stop" 
-after "deploy:migrations", "delayed_job:start"
+#before "deploy", "delayed_job:stop" 
+#after "deploy", "delayed_job:start"
 
 namespace :deploy do
   
@@ -53,8 +52,21 @@ namespace :delayed_job do
 
   desc "Stop delayed_job process" 
   task :stop, :roles => :app do
-    run "cd #{current_path} && sudo ruby script/delayed_job stop #{rails_env}" 
+    run "cd #{current_path} && ruby script/delayed_job stop #{rails_env}" 
     #run "sudo killall -q ruby"
+  end
+end
+
+namespace :tweet_sweeper do
+
+  desc "Start tweet_sweeper process" 
+  task :start, :roles => :app do
+    run "cd #{current_path} && ruby script/tweet_sweeper start #{rails_env}" 
+  end
+
+  desc "Stop tweet_sweeper process" 
+  task :stop, :roles => :app do
+    run "cd #{current_path} && sudo ruby script/tweet_sweeper stop #{rails_env}" 
   end
 
 end

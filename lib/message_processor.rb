@@ -6,9 +6,11 @@ class MessageProcessor
       max_id = last_id
       RAILS_DEFAULT_LOGGER.info "Starting twitter sweep at #{Time.now.to_s} - last ID: #{last_id}"
       Twitter::Search.new.to('blognag').since(max_id).each do |tweet|
-        max_id = tweet.id if tweet.id > max_id
-        RAILS_DEFAULT_LOGGER.info "Tweet received from @#{tweet.from_user}: #{tweet.text}"
-        MessageProcessor.send_later(:process_incoming_message, {:text => tweet.text, :from_user => tweet.from_user, :id => tweet.id})
+        if tweet.id > max_id
+          max_id = tweet.id
+          RAILS_DEFAULT_LOGGER.info "Tweet received from @#{tweet.from_user}: #{tweet.text}"
+          MessageProcessor.send_later(:process_incoming_message, {:text => tweet.text, :from_user => tweet.from_user, :id => tweet.id})
+        end
       end
       CurrentMessage.update_last_id(max_id)
     rescue => exc
