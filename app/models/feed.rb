@@ -55,7 +55,8 @@ class Feed < ActiveRecord::Base
         user.feeds.create(:feed_url => feed.feed_url, :blog_url => feed.url, :title => feed.title, :max_days_before_nagging => number_of_days)
         MessageProcessor.queue_outgoing_message user, "Your blog has been added. We'll send you a quasi-friendly reminder when you haven't posted to it in #{number_of_days} days."
       else
-        #feed isn't good - complain!
+        MessageProcessor.queue_outgoing_message user, "Sorry, but I can't locate the feed URL for this blog."
+        MessageProcessor.queur_outgoing_message 'mentalvelocity', "Unable to parse feed: #{url}"
       end
     end
   end
@@ -94,7 +95,11 @@ protected
     url = prepend_http_if_missing(url)
     doc = Nokogiri::HTML(open(url))
     return nil if doc.nil?
-    doc.search('head link[type="application/rss+xml"]').first.attributes["href"].to_s rescue nil
+    furl = doc.search('head link[type="application/rss+xml"]').first.attributes["href"].to_s rescue nil
+    if furl.nil?
+      furl = doc.search('head link[type="application/atom+xml"]').first.attributes["href"].to_s rescue nil      
+    end
+    furl
   end
 
   def self.feed_exists_for_user?(url, user)
